@@ -187,12 +187,57 @@
         <h2>Contact Me</h2>
         <p class="muted">You are welcome to contact me on WhatsApp at any time for official overseas business consulting and collaborations.</p>
       </div>
+      <section id="contact-form" style="margin-top:48px">
+        <hr style="margin:40px 0; border:0; border-top:1px solid #e9eef5;" />
+        <h2 style="font-size:24px; margin-bottom:12px;">Leave Your Info / 留下您的信息</h2>
+        <p style="color:#5a6b82; margin-bottom:20px;">
+          请留下您的公司名称、职位和联系方式，我会尽快与您取得联系。
+        </p>
+
+        <form id="foxForm" action="https://formspree.io/f/movkjwwj" method="POST">
+          <div style="display:grid; gap:14px; max-width:560px;">
+            <!-- 公司名称 -->
+            <label>
+              公司名称：
+              <input type="text" name="company" required placeholder="例如：SANY Heavy Industry"
+                     style="padding:12px 14px; border:1px solid #e1e7ef; border-radius:8px;">
+            </label>
+
+            <!-- 职位 -->
+            <label>
+              职位：
+              <input type="text" name="title" required placeholder="例如：采购经理"
+                     style="padding:12px 14px; border:1px solid #e1e7ef; border-radius:8px;">
+            </label>
+
+            <!-- 联系方式 -->
+            <label>
+              联系方式：
+              <input type="text" name="contact" required placeholder="邮箱或手机号"
+                     style="padding:12px 14px; border:1px solid #e1e7ef; border-radius:8px;">
+            </label>
+
+            <!-- 备注 -->
+            <label>
+              备注（可选）：
+              <textarea name="notes" rows="4" placeholder="简单介绍您的需求..."
+                        style="padding:12px 14px; border:1px solid #e1e7ef; border-radius:8px;"></textarea>
+            </label>
+
+            <button type="submit" style="padding:12px 18px; border:0; border-radius:8px; background:#123d6a; color:#fff; font-weight:600; cursor:pointer;">
+              提交
+            </button>
+          </div>
+        </form>
+      </section>
+
 
     </section>
   </main>
 
 </body>
 </html>
+
 
 
 
