@@ -187,25 +187,6 @@
              View Image
       </div>
 
-      <!-- 轻量放大预览（Lightbox） -->
-      <div id="lb" onclick="closeLightbox()"
-           style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9999; align-items:center; justify-content:center; padding:24px;">
-        <img id="lbimg" alt="" style="max-width:96%; max-height:92%; border-radius:12px; background:#fff"/>
-      </div>
-
-      <script>
-        function openLightbox(src, alt) {
-          const lb = document.getElementById('lb');
-          const img = document.getElementById('lbimg');
-          img.src = src; img.alt = alt;
-          lb.style.display = 'flex';
-        }
-        function closeLightbox() {
-          document.getElementById('lb').style.display = 'none';
-        }
-      </script>
-
-
       <div class="section">
         <h2>Services & Activities</h2>
         <ul class="list">
@@ -279,6 +260,7 @@
 
 </body>
 </html>
+
 
 
 
