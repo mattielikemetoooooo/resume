@@ -83,80 +83,6 @@
   </style>
 </head>
 
-<style>
-  /* 让 canvas 覆盖整个背景 */
-  #shootingStars {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;   /* 保证在文字和内容后面 */
-    background: transparent; /* 保持透明，显示你原本的白底 */
-  }
-</style>
-
-<script>
-  const canvas = document.getElementById('shootingStars');
-  const ctx = canvas.getContext('2d');
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  });
-
-  class ShootingStar {
-    constructor() {
-      this.reset();
-    }
-
-    reset() {
-      this.x = Math.random() * canvas.width;
-      this.y = 0;
-      this.length = Math.random() * 80 + 20;
-      this.speed = Math.random() * 8 + 4;
-      this.opacity = Math.random() * 0.5 + 0.3;
-    }
-
-    draw() {
-      ctx.beginPath();
-      ctx.moveTo(this.x, this.y);
-      ctx.lineTo(this.x - this.length, this.y + this.length);
-      ctx.strokeStyle = `rgba(255,255,255,${this.opacity})`;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    update() {
-      this.x += -this.speed;
-      this.y += this.speed;
-      if (this.y > canvas.height || this.x < 0) {
-        this.reset();
-        this.y = 0;
-      }
-    }
-  }
-
-  const stars = [];
-  for (let i = 0; i < 30; i++) {
-    stars.push(new ShootingStar());
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    stars.forEach(star => {
-      star.update();
-      star.draw();
-    });
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-</script>
-
 <body>
   <!-- 星空流星背景 -->
   <canvas id="shootingStars"></canvas>
@@ -171,6 +97,70 @@
       <div class="subtitle">part-time ：Rap Star</div>
       <div class="subtitle">CTU to PVG</div>
       <div class="email"><a href="WhatsApp: +44 7550 067795">WhatsApp: +44 7550 067795</a></div>
+
+      <style>
+        #shootingStars {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;   /* 在背景 */
+          background: transparent;
+        }
+      </style>
+
+  <!-- 流星的脚本 -->
+      <script>
+        const canvas = document.getElementById('shootingStars');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        });
+
+        class ShootingStar {
+          constructor() { this.reset(); }
+          reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = 0;
+            this.length = Math.random() * 80 + 20;
+            this.speed = Math.random() * 8 + 4;
+            this.opacity = Math.random() * 0.5 + 0.3;
+          }
+          draw() {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x - this.length, this.y + this.length);
+            ctx.strokeStyle = `rgba(255,255,255,${this.opacity})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+          update() {
+            this.x += -this.speed;
+            this.y += this.speed;
+            if (this.y > canvas.height || this.x < 0) {
+              this.reset();
+              this.y = 0;
+            }
+          }
+        }
+
+        const stars = [];
+        for (let i = 0; i < 30; i++) stars.push(new ShootingStar());
+
+        function animate() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          stars.forEach(star => { star.update(); star.draw(); });
+          requestAnimationFrame(animate);
+        }
+
+        animate();
+      </script>
 
       <div class="icons" aria-label="social links">
         <!-- YouTube -->
@@ -417,6 +407,7 @@
 </ul>
 </body>
 </html>
+
 
 
 
