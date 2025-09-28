@@ -80,6 +80,8 @@
       .iconbtn{display:none}
       .page{gap:24px}
     }
+    /* ★★★ 流星背景层样式（关键修复：不使用负 z-index） */
+    #shootingStars { position: fixed; inset: 0; width: 100%; height: 100%; background: transparent; z-index: 0; pointer-events: none; }
   </style>
 </head>
 
@@ -97,70 +99,6 @@
       <div class="subtitle">part-time ：Rap Star</div>
       <div class="subtitle">CTU to PVG</div>
       <div class="email"><a href="WhatsApp: +44 7550 067795">WhatsApp: +44 7550 067795</a></div>
-
-      <style>
-        #shootingStars {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          z-index: -1;   /* 在背景 */
-          background: transparent;
-        }
-      </style>
-
-  <!-- 流星的脚本 -->
-      <script>
-        const canvas = document.getElementById('shootingStars');
-        const ctx = canvas.getContext('2d');
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        window.addEventListener('resize', () => {
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
-        });
-
-        class ShootingStar {
-          constructor() { this.reset(); }
-          reset() {
-            this.x = Math.random() * canvas.width;
-            this.y = 0;
-            this.length = Math.random() * 80 + 20;
-            this.speed = Math.random() * 8 + 4;
-            this.opacity = Math.random() * 0.5 + 0.3;
-          }
-          draw() {
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x - this.length, this.y + this.length);
-            ctx.strokeStyle = `rgba(255,255,255,${this.opacity})`;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-          }
-          update() {
-            this.x += -this.speed;
-            this.y += this.speed;
-            if (this.y > canvas.height || this.x < 0) {
-              this.reset();
-              this.y = 0;
-            }
-          }
-        }
-
-        const stars = [];
-        for (let i = 0; i < 30; i++) stars.push(new ShootingStar());
-
-        function animate() {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          stars.forEach(star => { star.update(); star.draw(); });
-          requestAnimationFrame(animate);
-        }
-
-        animate();
-      </script>
 
       <div class="icons" aria-label="social links">
         <!-- YouTube -->
@@ -405,8 +343,64 @@
   })();
   </script>
 </ul>
+
+
+  <!-- ★★★ 放在 body 尾部：流星动画脚本 -->
+  <script>
+    (function(){
+      const canvas = document.getElementById('shootingStars');
+      const ctx = canvas.getContext('2d');
+
+
+      function resize(){
+        const dpr = window.devicePixelRatio || 1;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+
+      class ShootingStar {
+        constructor(){ this.reset(); }
+        reset(){
+          this.x = Math.random() * window.innerWidth;
+          this.y = -20;
+          this.length = Math.random() * 80 + 20;
+          this.speed = Math.random() * 8 + 4;
+          this.opacity = Math.random() * 0.5 + 0.3;
+        }
+        draw(){
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(this.x - this.length, this.y + this.length);
+          ctx.strokeStyle = `rgba(255,255,255,${this.opacity})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        update(){
+          this.x -= this.speed;
+          this.y += this.speed;
+          if (this.y > window.innerHeight || this.x < -this.length) this.reset();
+        }
+      }
+
+
+      const stars = Array.from({length: 30}, () => new ShootingStar());
+      function animate(){
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        for (const s of stars){ s.update(); s.draw(); }
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+  </script>
 </body>
 </html>
+
 
 
 
