@@ -81,14 +81,12 @@
       .iconbtn{display:none}
       .page{gap:24px}
     }
-    /* ★★★ 流星背景层样式（关键修复：不使用负 z-index） */
-    #shootingStars { position: fixed; inset: 0; width: 100%; height: 100%; background: transparent; z-index: 0; pointer-events: none; }
+    
   </style>
 </head>
 
 <body>
-  <!-- 星空流星背景 -->
-  <canvas id="shootingStars"></canvas>
+  
   <main class="page">
 
     <!-- 左栏：头像 + 基本信息 + 外链图标 -->
@@ -344,63 +342,9 @@
   })();
   </script>
 </ul>
-
-
-  <!-- ★★★ 放在 body 尾部：流星动画脚本 -->
-  <script>
-    (function(){
-      const canvas = document.getElementById('shootingStars');
-      const ctx = canvas.getContext('2d');
-
-
-      function resize(){
-        const dpr = window.devicePixelRatio || 1;
-        canvas.style.width = '100%';
-        canvas.style.height = '100%';
-        canvas.width = Math.floor(window.innerWidth * dpr);
-        canvas.height = Math.floor(window.innerHeight * dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-
-      class ShootingStar {
-        constructor(){ this.reset(); }
-        reset(){
-          this.x = Math.random() * window.innerWidth;
-          this.y = -20;
-          this.length = Math.random() * 80 + 20;
-          this.speed = Math.random() * 3 + 2;
-          this.opacity = Math.random() * 0.5 + 0.3;
-        }
-        draw(){
-          ctx.beginPath();
-          ctx.moveTo(this.x, this.y);
-          ctx.lineTo(this.x - this.length, this.y + this.length);
-          ctx.strokeStyle = `rgba(135,206,235,${this.opacity})`;
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        }
-        update(){
-          this.x -= this.speed;
-          this.y += this.speed;
-          if (this.y > window.innerHeight || this.x < -this.length) this.reset();
-        }
-      }
-
-
-      const stars = Array.from({length: 30}, () => new ShootingStar());
-      function animate(){
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        for (const s of stars){ s.update(); s.draw(); }
-        requestAnimationFrame(animate);
-      }
-      animate();
-    })();
-  </script>
 </body>
 </html>
+
 
 
 
