@@ -342,25 +342,25 @@
   })();
   </script>
 </ul>
-  <!-- Chat Bubble -->
+  <!-- Chat Bubble (GET 版本：无预检、无自定义头) -->
   <style>
-  #chat-fab{position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;
-    background:#4f8cff;color:#fff;display:flex;align-items:center;justify-content:center;
-    box-shadow:0 10px 20px rgba(0,0,0,.25);cursor:pointer;font:600 18px system-ui}
-  #chat-panel{position:fixed;right:18px;bottom:86px;width:340px;background:#15171a;color:#f6f7f9;
-    border:1px solid #22262b;border-radius:16px;display:none;flex-direction:column;overflow:hidden}
-  #chat-log{height:300px;overflow:auto;padding:12px}
-  .chat-msg{max-width:86%;margin:6px 0;padding:8px 10px;border-radius:10px;white-space:pre-wrap}
-  .chat-me{margin-left:auto;background:#2a2f35;border:1px solid #33373d}
-  .chat-ai{margin-right:auto;background:#14181c;border:1px solid #242a31}
-  #chat-input{display:flex;gap:8px;border-top:1px solid #22262b;padding:10px}
-  #chat-input textarea{flex:1;height:70px;background:#0f1215;color:#fff;border:1px solid #2b3138;border-radius:10px;resize:none}
-  #chat-input button{padding:0 12px;border-radius:10px;border:1px solid #2b3138;background:#4f8cff;color:#fff;font-weight:700}
+    #chat-fab{position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;
+      background:#4f8cff;color:#fff;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 10px 20px rgba(0,0,0,.25);cursor:pointer;font:600 18px system-ui}
+    #chat-panel{position:fixed;right:18px;bottom:86px;width:340px;background:#15171a;color:#f6f7f9;
+      border:1px solid #22262b;border-radius:16px;display:none;flex-direction:column;overflow:hidden}
+    #chat-log{height:300px;overflow:auto;padding:12px}
+    .chat-msg{max-width:86%;margin:6px 0;padding:8px 10px;border-radius:10px;white-space:pre-wrap}
+    .chat-me{margin-left:auto;background:#2a2f35;border:1px solid #33373d}
+    .chat-ai{margin-right:auto;background:#14181c;border:1px solid #242a31}
+    #chat-input{display:flex;gap:8px;border-top:1px solid #22262b;padding:10px}
+    #chat-input textarea{flex:1;height:70px;background:#0f1215;color:#fff;border:1px solid #2b3138;border-radius:10px;resize:none}
+    #chat-input button{padding:0 12px;border-radius:10px;border:1px solid #2b3138;background:#4f8cff;color:#fff;font-weight:700}
   </style>
 
   <div id="chat-fab">聊</div>
   <div id="chat-panel" role="dialog" aria-label="聊天窗口">
-    <div style="padding:10px;border-bottom:1px solid #22262b;font-weight:700">和站长聊聊</div>
+    <div style="padding:10px;border-bottom:1px solid #22262b;font-weight:700">和Jerry的智能助手聊聊</div>
     <div id="chat-log"></div>
     <div id="chat-input">
       <textarea id="chat-text" placeholder="说点什么…（Enter 发送，Shift+Enter 换行）"></textarea>
@@ -369,41 +369,67 @@
   </div>
 
   <script>
-  const FC_ENDPOINT = "https://fox-nbleiojidx.cn-hangzhou.fcapp.run/"; // ← 换成你的地址
-  const fab = document.getElementById('chat-fab');
-  const panel = document.getElementById('chat-panel');
-  const logEl = document.getElementById('chat-log');
-  const txt = document.getElementById('chat-text');
-  const send = document.getElementById('chat-send');
+  // ← 改成你的 FC 公网地址（末尾保留 /）
+    const FC_ENDPOINT = "https://fox-nbleiojidx.cn-hangzhou.fcapp.run/";
 
-  const historyMsgs = [{role:'system',content:'你是网站主人的助手，用简洁中文交流。'}];
+    const fab = document.getElementById('chat-fab');
+    const panel = document.getElementById('chat-panel');
+    const logEl = document.getElementById('chat-log');
+    const txt = document.getElementById('chat-text');
+    const send = document.getElementById('chat-send');
 
-  function add(role,text){
-    const d=document.createElement('div');
-    d.className='chat-msg ' + (role==='user'?'chat-me':'chat-ai');
-    d.textContent=text;logEl.appendChild(d);logEl.scrollTop=logEl.scrollHeight;
-  }
+    function add(role, text){
+      const d = document.createElement('div');
+      d.className = 'chat-msg ' + (role === 'user' ? 'chat-me' : 'chat-ai');
+      d.textContent = text;
+      logEl.appendChild(d);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
 
-  async function go(){
-    const q=txt.value.trim(); if(!q) return;
-    add('user',q); txt.value=''; send.disabled=true;
-    try{
-      const res=await fetch(FC_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model:'deepseek-chat',messages:[...historyMsgs,{role:'user',content:q}]})});
-      const data=await res.json();
-      const a=data.content || data?.raw?.choices?.[0]?.message?.content || '（空响应）';
-      historyMsgs.push({role:'user',content:q},{role:'assistant',content:a});
-      add('assistant',a);
-    }catch(e){ add('assistant','出错：'+e.message); }
-    finally{ send.disabled=false; txt.focus(); }
-  }
+    async function ask(){
+      const q = txt.value.trim();
+      if(!q) return;
+      add('user', q);
+      txt.value = '';
+      send.disabled = true;
 
-  fab.onclick=()=>{ panel.style.display = panel.style.display==='flex' ? 'none' : 'flex'; panel.style.display==='flex'&&txt.focus(); };
-  send.onclick=go;
-  txt.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();}});
+      try{
+      // ✅ 使用 GET + 查询串，避免自定义头，不会触发预检（OPTIONS）
+        const url = FC_ENDPOINT + "?q=" + encodeURIComponent(q);
+        const res = await fetch(url, { method: "GET" }); // 不要加 headers
+        if(!res.ok){
+          const t = await res.text().catch(()=> '');
+          throw new Error(`HTTP ${res.status}${t ? ' - ' + t : ''}`);
+        }
+        const data = await res.json().catch(()=> ({}));
+        const a = data?.content || data?.raw?.choices?.[0]?.message?.content || '（空响应）';
+        add('assistant', a);
+      }catch(e){
+        add('assistant', '出错：' + (e?.message || e));
+      }finally{
+        send.disabled = false;
+        txt.focus();
+      }
+    }
+
+    fab.onclick = () => {
+      const open = panel.style.display === 'flex';
+      panel.style.display = open ? 'none' : 'flex';
+      if(!open) txt.focus();
+    };
+
+    send.onclick = ask;
+    txt.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        ask();
+      }
+    });
   </script>
+    
 </body>
 </html>
+
 
 
 
