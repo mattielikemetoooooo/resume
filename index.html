@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script>
+  // 只允许裸域名，不允许 www 打开，防止 CORS 的 Origin 多值
+    if (location.hostname === 'www.mattielikemetoooooo.com') {
+      location.replace(location.href.replace('//www.', '//'));
+    }
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MATTIE | PRIVATE CV</title>
@@ -407,6 +413,7 @@
   
 </body>
 </html>
+
 
 
 
