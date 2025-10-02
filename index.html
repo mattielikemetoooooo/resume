@@ -377,42 +377,104 @@
   </div>
 
   <script>
-  const FC_ENDPOINT = "https://fox-nbleiojidx.cn-hangzhou.fcapp.run/"; // ← 换成你的地址
-  const fab = document.getElementById('chat-fab');
-  const panel = document.getElementById('chat-panel');
-  const logEl = document.getElementById('chat-log');
-  const txt = document.getElementById('chat-text');
+  const FC_ENDPOINT = "https://fox-nbleiojidx.cn-hangzhou.fcapp.run/"; // 你的地址
+  const fab  = document.getElementById('chat-fab');
+  const panel= document.getElementById('chat-panel');
+  const logEl= document.getElementById('chat-log');
+  const txt  = document.getElementById('chat-text');
   const send = document.getElementById('chat-send');
 
-  const historyMsgs = [{role:'system',content:'你是网站主人的助手，用简洁中文交流。'}];
+  // 强一点的 system：禁止寒暄/自我介绍
+  const historyMsgs = [
+    { role:'system',
+      content:'你是 Jerry 的 AI 助手，用简洁中文直接回答用户问题。禁止寒暄、自我介绍、重复问候。若用户说“写一句/给一句…”，只输出那一句，不要解释。'
+    }
+  ];
 
-  function add(role,text){
-    const d=document.createElement('div');
-    d.className='chat-msg ' + (role==='user'?'chat-me':'chat-ai');
-    d.textContent=text;logEl.appendChild(d);logEl.scrollTop=logEl.scrollHeight;
+  function add(role, text){
+    const d = document.createElement('div');
+    d.className = 'chat-msg ' + (role==='user' ? 'chat-me' : 'chat-ai');
+    d.textContent = text;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
   }
+
+  // 防止重复发送
+  let inFlight = false;
 
   async function go(){
-    const q=txt.value.trim(); if(!q) return;
-    add('user',q); txt.value=''; send.disabled=true;
+    const q = txt.value.trim();
+    if (!q || inFlight) return;
+
+    // 先把用户话显示出来
+    add('user', q);
+    txt.value=''; send.disabled=true; inFlight = true;
+
     try{
-      const res=await fetch(FC_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model:'deepseek-chat',messages:[...historyMsgs,{role:'user',content:q}]})});
-      const data=await res.json();
-      const a=data.content || data?.raw?.choices?.[0]?.message?.content || '（空响应）';
-      historyMsgs.push({role:'user',content:q},{role:'assistant',content:a});
-      add('assistant',a);
-    }catch(e){ add('assistant','出错：'+e.message); }
-    finally{ send.disabled=false; txt.focus(); }
+    // 发送时：最后一条必须是这轮 user
+      const toSend = [...historyMsgs, { role:'user', content:q }];
+
+      const res = await fetch(FC_ENDPOINT, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model:'deepseek-chat',
+          debug:true,              // ← 开启一次后端回显，定位链路；稳定后可删
+          messages: toSend
+        })
+      });
+
+      const data = await res.json();
+
+      // 在控制台核对三样：收到/清洗/真正发给上游的 messages
+      if (data?.debug){
+        console.log('[DEBUG.received_messages]', data.debug.received_messages);
+        console.log('[DEBUG.cleaned_messages]',  data.debug.cleaned_messages);
+        console.log('[DEBUG.sent_to_upstream]', data.debug.sent_to_upstream);
+        console.log('[DEBUG.picked_user_text]', data.debug.picked_user_text);
+        console.log('[DEBUG.upstream_status]',  data.debug.upstream_status);
+      }
+
+      const a = data.content
+             || data?.raw?.choices?.[0]?.message?.content
+             || '（空响应）';
+
+      // **拿到回复后**再把双方 push 进历史（顺序正确）
+      historyMsgs.push({ role:'user', content:q }, { role:'assistant', content:a });
+
+    // （可选）限制历史长度，减少上下文噪声
+      if (historyMsgs.length > 20){
+        const sys = historyMsgs[0];
+        const tail = historyMsgs.slice(-14);
+        historyMsgs.length = 0;
+        historyMsgs.push(sys, ...tail);
+      }
+
+      add('assistant', a);
+    }catch(e){
+      add('assistant', '出错：' + (e?.message || e));
+    }finally{
+      send.disabled=false; inFlight=false; txt.focus();
+    }
   }
 
-  fab.onclick=()=>{ panel.style.display = panel.style.display==='flex' ? 'none' : 'flex'; panel.style.display==='flex'&&txt.focus(); };
-  send.onclick=go;
-  txt.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();}});
+  // 浮窗开关
+  fab.onclick = () => {
+    panel.style.display = panel.style.display==='flex' ? 'none' : 'flex';
+    if (panel.style.display==='flex') txt.focus();
+  };
+
+  // 避免“回车+按钮”双触发
+  send.type = 'button';
+  send.onclick = go;
+  txt.addEventListener('keydown', e=>{
+    if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); go(); }
+  });
   </script>
-  
+
 </body>
 </html>
+
 
 
 
